@@ -1,0 +1,12 @@
+record:
+  output_dir: recordings
+  master_serial: "000033103112"
+  start_rank: 3
+  resolution: "720p"
+  fps: 30
+  subordinate_delay_usec: 160    # 不建议修改
+  synchronized_images_only: true # 不建议修改
+
+preview:
+  width: 320
+  height: 180
