@@ -1,19 +1,25 @@
 record:
   output_dir: recordings
   master_serial: "000192203112"
-  start_rank: 3
   resolution: "720p"
   fps: 30
-  subordinate_delay_usec: 160    # 不建议修改
-  synchronized_images_only: true # 不建议修改
+  subordinate_delay_usec: 160
+  synchronized_images_only: true
+  # 分布式参数↓  每台电脑相应修改！！！
+  start_rank: 3
+  machine_tag: "node1"
 
+# 预览参数，不建议修改
 preview:
   width: 320
   height: 180
 
-# hydra 配置，不建议修改
 hydra:
+  output_subdir: null
   run:
-    dir: hydra_outputs/${now:%Y-%m-%d}/${now:%H-%M-%S}
+    dir: .
   sweep:
-    dir: hydra_outputs/multirun/${now:%Y-%m-%d}/${now:%H-%M-%S}
+    dir: .
+    subdir: multirun
+  job:
+    chdir: false

@@ -174,6 +174,7 @@ def save_timestamp_rows(
             [
                 "frame_index",
                 "source_frame_index",
+                "machine_tag",
                 "device_timestamp_usec",
                 "system_timestamp_sec",
                 "system_timestamp_ns",
@@ -190,6 +191,7 @@ def save_timestamp_rows(
                 [
                     export_index,
                     frame.frame_index,
+                    system_row.get("machine_tag", ""),
                     frame.device_timestamp_usec,
                     system_row.get("system_timestamp_sec", ""),
                     system_row.get("system_timestamp_ns", ""),

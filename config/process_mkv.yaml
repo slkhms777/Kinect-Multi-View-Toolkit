@@ -1,4 +1,4 @@
-run_dir: "CHANGE_ME"
+run_dir: "CHANGE_ME" # windows 路径，注意双斜杠\\
 output_subdir: "processed"
 fps: 30
 all_serials:
@@ -13,7 +13,11 @@ all_serials:
 
 # hydra 配置，不建议修改
 hydra:
+  output_subdir: null
   run:
-    dir: hydra_outputs/${now:%Y-%m-%d}/${now:%H-%M-%S}
+    dir: .
   sweep:
-    dir: hydra_outputs/multirun/${now:%Y-%m-%d}/${now:%H-%M-%S}
+    dir: .
+    subdir: multirun
+  job:
+    chdir: false

@@ -27,6 +27,8 @@ Azure Kinect 多设备录制脚本。
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
+from queue import Empty, SimpleQueue
+from threading import Thread
 import time
 
 import cv2
@@ -112,16 +114,21 @@ def decode_color_image(capture) -> np.ndarray | None:
     return color_image
 
 
-def flush_frame_timestamps(save_dir: Path, session: DeviceSession, run_name: str) -> None:
+def flush_frame_timestamps(
+    save_dir: Path,
+    session: DeviceSession,
+    run_name: str,
+    machine_tag: str,
+) -> None:
     if not session.frame_timestamps_ns:
         return
 
     timestamp_path = save_dir / f"{run_name}_{session.device.serial}_system_timestamps.csv"
     with timestamp_path.open("w", encoding="utf-8") as file:
-        file.write("frame_index,system_timestamp_sec,system_timestamp_ns\n")
+        file.write("frame_index,machine_tag,system_timestamp_sec,system_timestamp_ns\n")
         for frame_index, timestamp_ns in enumerate(session.frame_timestamps_ns):
             timestamp_sec = timestamp_ns / 1_000_000_000
-            file.write(f"{frame_index},{timestamp_sec:.4f},{timestamp_ns}\n")
+            file.write(f"{frame_index},{machine_tag},{timestamp_sec:.4f},{timestamp_ns}\n")
 
 
 def find_master_device(master_serial: str, device_count: int) -> int | None:
@@ -211,13 +218,35 @@ def preview_capture(session: DeviceSession, capture, preview_width: int, preview
     cv2.imshow(session.window_name, preview)
 
 
+def start_command_listener() -> SimpleQueue[str]:
+    command_queue: SimpleQueue[str] = SimpleQueue()
+
+    def read_commands() -> None:
+        while True:
+            try:
+                command = input().strip().lower()
+            except EOFError:
+                command_queue.put("q")
+                return
+
+            if command:
+                command_queue.put(command)
+
+    listener = Thread(target=read_commands, daemon=True)
+    listener.start()
+    return command_queue
+
+
 def run_recording_loop(cfg: DictConfig, sessions: list[DeviceSession], save_dir: Path, run_name: str) -> None:
     recording = False
     has_recorded = False
     preview_width = int(cfg.preview.width)
     preview_height = int(cfg.preview.height)
+    command_queue = start_command_listener()
 
-    print("Press 'r' to start recording once, 's' to stop and exit, and 'q' to quit.")
+    print("Type 'r' and press Enter to start recording once.")
+    print("Type 's' and press Enter to stop recording and exit.")
+    print("Type 'q' and press Enter to quit.")
 
     while True:
         for session in sessions:
@@ -229,21 +258,30 @@ def run_recording_loop(cfg: DictConfig, sessions: list[DeviceSession], save_dir:
             else:
                 preview_capture(session, capture, preview_width, preview_height)
 
-        key = cv2.waitKey(1) & 0xFF
-        if key == ord("r"):
+        cv2.waitKey(1)
+
+        try:
+            command = command_queue.get_nowait()
+        except Empty:
+            continue
+
+        if command == "r":
             if has_recorded:
                 print("Recording is limited to one session. Restart the program to record again.")
                 continue
             recording = True
             has_recorded = True
             print("Recording started.")
-        elif key == ord("s"):
+        elif command == "s":
             if recording:
                 print("Recording stopped. Exiting.")
                 return
-        elif key == ord("q"):
+            print("Recording has not started yet. Ignoring stop command.")
+        elif command == "q":
             print("Exiting.")
             return
+        else:
+            print(f"Unknown command: {command}. Please use r, s, or q.")
 
 
 @hydra.main(version_base=None, config_path="config", config_name="config")
@@ -266,7 +304,7 @@ def main(cfg: DictConfig) -> None:
         print("CTRL-C pressed. Exiting.")
     finally:
         for session in sessions:
-            flush_frame_timestamps(save_dir, session, run_name)
+            flush_frame_timestamps(save_dir, session, run_name, str(cfg.record.machine_tag))
         cleanup_sessions(sessions)
 
 
