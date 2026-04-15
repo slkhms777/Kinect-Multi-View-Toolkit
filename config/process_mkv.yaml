@@ -10,3 +10,10 @@ all_serials:
   - "000545703212"
   - "000614303212"
   - "000828303212"
+
+# hydra 配置，不建议修改
+hydra:
+  run:
+    dir: hydra_outputs/${now:%Y-%m-%d}/${now:%H-%M-%S}
+  sweep:
+    dir: hydra_outputs/multirun/${now:%Y-%m-%d}/${now:%H-%M-%S}
