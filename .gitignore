@@ -27,3 +27,7 @@ recordings/
 
 Thumbs.db
 Desktop.ini
+
+
+# hydra output directory
+outputs/

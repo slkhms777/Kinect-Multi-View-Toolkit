@@ -124,7 +124,7 @@ def flush_frame_timestamps(save_dir: Path, session: DeviceSession, run_name: str
             file.write(f"{frame_index},{timestamp_sec:.4f},{timestamp_ns}\n")
 
 
-def find_master_device(master_serial: str, device_count: int) -> int:
+def find_master_device(master_serial: str, device_count: int) -> int | None:
     print(f"Detected device count: {device_count}")
     for device_id in range(device_count):
         device = PyK4A(device_id=device_id)
@@ -136,12 +136,23 @@ def find_master_device(master_serial: str, device_count: int) -> int:
         finally:
             device.stop()
 
-    raise RuntimeError(f"Master device with serial {master_serial} was not found.")
+    print(f"Master device with serial {master_serial} was not found in this machine node.")
+    return None
 
 
-def initialize_sessions(cfg: DictConfig, master_id: int, device_count: int, save_dir: Path, run_name: str):
+def initialize_sessions(
+    cfg: DictConfig,
+    master_id: int | None,
+    device_count: int,
+    save_dir: Path,
+    run_name: str,
+):
     sessions: list[DeviceSession] = []
-    device_ids = [device_id for device_id in range(device_count) if device_id != master_id] + [master_id]
+    if master_id is None:
+        device_ids = list(range(device_count))
+        print("This node does not contain the master device. All local devices will run as subordinates.")
+    else:
+        device_ids = [device_id for device_id in range(device_count) if device_id != master_id] + [master_id]
     current_rank = int(cfg.record.start_rank)
 
     for device_id in device_ids:

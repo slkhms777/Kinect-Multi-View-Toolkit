@@ -1,6 +1,6 @@
 record:
   output_dir: recordings
-  master_serial: "000033103112"
+  master_serial: "000192203112"
   start_rank: 3
   resolution: "720p"
   fps: 30
