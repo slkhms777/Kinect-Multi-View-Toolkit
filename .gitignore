@@ -20,7 +20,7 @@ htmlcov/
 .idea/
 .vscode/
 
-recordings/
+
 *.mkv
 *.csv
 *.log
@@ -30,7 +30,8 @@ Desktop.ini
 
 hydra_logs/
 
-datasets/
+recordings/*
+datasets/*
 
 !recordings/.gitkeep
 !datasets/.gitkeep
