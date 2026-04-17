@@ -15,13 +15,11 @@ preview:
   height: 180
 
 hydra:
-  job_logging: disabled
-  hydra_logging: disabled
-  output_subdir: null
+  output_subdir: .hydra
   run:
-    dir: .
+    dir: hydra_logs/${hydra.job.name}/${now:%Y%m%d_%H%M%S}
   sweep:
-    dir: .
+    dir: hydra_logs/${hydra.job.name}
     subdir: multirun
   job:
     chdir: false

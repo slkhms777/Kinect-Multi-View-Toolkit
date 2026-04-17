@@ -1,11 +1,11 @@
-run_dir: "CHANGE_ME" # windows 路径，注意双斜杠\\
+run_dir: "recordings/20260417_121333" # windows 路径，注意双斜杠\\
 output_subdir: "processed"
 fps: 30
 all_serials:
   - "000033103112"
   - "000192203112"
-  - "000260603112"
-  - "000512692212"
+  # - "000260603112"
+  # - "000512692212"
   - "000541403212"
   - "000545703212"
   - "000614303212"
@@ -13,13 +13,11 @@ all_serials:
 
 # hydra 配置，不建议修改
 hydra:
-  job_logging: disabled
-  hydra_logging: disabled
-  output_subdir: null
+  output_subdir: .hydra
   run:
-    dir: .
+    dir: hydra_logs/${hydra.job.name}/${now:%Y%m%d_%H%M%S}
   sweep:
-    dir: .
+    dir: hydra_logs/${hydra.job.name}
     subdir: multirun
   job:
     chdir: false

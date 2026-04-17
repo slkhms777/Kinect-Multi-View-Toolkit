@@ -11,13 +11,14 @@
 
 输出目录结构：
     <run_dir>/<output_subdir>/
+        timestep_info/
+            <device_serial>_timestamps.csv
         <device_serial>/
             color_000000.jpg
             depth_000000.png
             color_000001.jpg
             depth_000001.png
             ...
-        <device_serial>_timestamps.csv
 
 功能说明：
     1. 读取 process_mkv.yaml 中的运行目录、serial 列表和 fps。
@@ -162,12 +163,13 @@ def count_valid_frames(frame_infos: list[FrameInfo], start_flag_usec: int, end_f
 
 
 def save_timestamp_rows(
-    output_root: Path,
+    timestamp_dir: Path,
     serial: str,
     selected_frames: list[FrameInfo],
     system_rows: list[dict[str, str]],
 ) -> None:
-    timestamp_path = output_root / f"{serial}_timestamps.csv"
+    timestamp_dir.mkdir(parents=True, exist_ok=True)
+    timestamp_path = timestamp_dir / f"{serial}_timestamps.csv"
     with timestamp_path.open("w", encoding="utf-8", newline="") as file:
         writer = csv.writer(file)
         writer.writerow(
@@ -203,11 +205,11 @@ def export_camera_frames(
     camera_info: CameraInfo,
     selected_frames: list[FrameInfo],
     system_rows: list[dict[str, str]],
-    output_root: Path,
+    timestamp_dir: Path,
     output_dir: Path,
 ) -> None:
     output_dir.mkdir(parents=True, exist_ok=True)
-    save_timestamp_rows(output_root, camera_info.serial, selected_frames, system_rows)
+    save_timestamp_rows(timestamp_dir, camera_info.serial, selected_frames, system_rows)
 
     selected_by_source_index = {frame.frame_index: export_idx for export_idx, frame in enumerate(selected_frames)}
 
@@ -307,6 +309,7 @@ def main(cfg: DictConfig) -> None:
     export_root = run_dir / output_subdir
     ensure_empty_output_dir(export_root)
     export_root.mkdir(parents=True, exist_ok=True)
+    timestamp_dir = export_root / "timestep_info"
 
     cameras: list[CameraInfo] = []
     for serial in serials:
@@ -353,7 +356,7 @@ def main(cfg: DictConfig) -> None:
             f"Exporting serial {camera_info.serial}: start source frame {start_idx}, "
             f"frames {len(selected_frames)} -> {output_dir}"
         )
-        export_camera_frames(camera_info, selected_frames, system_rows, export_root, output_dir)
+        export_camera_frames(camera_info, selected_frames, system_rows, timestamp_dir, output_dir)
 
     print(f"Done. Exported synchronized frames to: {export_root}")
 
