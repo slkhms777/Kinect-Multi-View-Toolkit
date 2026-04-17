@@ -13,6 +13,8 @@ all_serials:
 
 # hydra 配置，不建议修改
 hydra:
+  job_logging: disabled
+  hydra_logging: disabled
   output_subdir: null
   run:
     dir: .

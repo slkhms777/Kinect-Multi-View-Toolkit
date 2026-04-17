@@ -275,6 +275,14 @@ def summarize_camera(camera_info: CameraInfo, fps: int) -> None:
         )
 
 
+def ensure_empty_output_dir(output_dir: Path) -> None:
+    if output_dir.exists() and any(output_dir.iterdir()):
+        raise FileExistsError(
+            f"Output directory already exists and is not empty: {output_dir}. "
+            "Choose a different output_subdir or remove the existing output directory first."
+        )
+
+
 @hydra.main(version_base=None, config_path="../config", config_name="process_mkv")
 def main(cfg: DictConfig) -> None:
     run_dir_value = str(cfg.run_dir).strip()
@@ -297,6 +305,7 @@ def main(cfg: DictConfig) -> None:
         raise ValueError("Please set output_subdir in config/process_mkv.yaml")
 
     export_root = run_dir / output_subdir
+    ensure_empty_output_dir(export_root)
     export_root.mkdir(parents=True, exist_ok=True)
 
     cameras: list[CameraInfo] = []
