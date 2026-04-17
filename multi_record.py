@@ -284,7 +284,7 @@ def run_recording_loop(cfg: DictConfig, sessions: list[DeviceSession], save_dir:
             print(f"Unknown command: {command}. Please use r, s, or q.")
 
 
-@hydra.main(version_base=None, config_path="config", config_name="config")
+@hydra.main(version_base=None, config_path="config", config_name="record")
 def main(cfg: DictConfig) -> None:
     device_count = connected_device_count()
     if device_count == 0:

@@ -1,0 +1,24 @@
+input_dir: "CHANGE_ME" # Usually a processed directory, e.g. recordings/20260417_121333/processed.
+all_serials:
+  - "000033103112"
+  - "000192203112"
+  # - "000260603112"
+  # - "000512692212"
+  - "000541403212"
+  - "000545703212"
+  - "000614303212"
+  - "000828303212"
+output_dir: "datasets"
+output_name: "CHANGE_ME" # Name of the output dataset, finally saved as output_dir/output_name.
+start_frame: 0
+end_frame: -1 # Inclusive. Use -1 to extract until the last available frame.
+
+hydra:
+  output_subdir: .hydra
+  run:
+    dir: hydra_logs/${hydra.job.name}/${now:%Y%m%d_%H%M%S}
+  sweep:
+    dir: hydra_logs/${hydra.job.name}
+    subdir: multirun
+  job:
+    chdir: false

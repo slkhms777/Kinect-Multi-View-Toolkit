@@ -29,3 +29,8 @@ Thumbs.db
 Desktop.ini
 
 hydra_logs/
+
+datasets/
+
+!recordings/.gitkeep
+!datasets/.gitkeep
