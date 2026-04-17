@@ -1,6 +1,6 @@
-run_dir: "CHANGE_ME" # windows 路径，注意双斜杠\\
-output_subdir: "processed"
-fps: 30
+run_dir: "CHANGE_ME" # Directory containing MKV files.
+sub_dir: "processed" # Directory under run_dir containing exported color/depth images.
+calibration_frame: 0
 all_serials:
   - "000033103112"
   - "000192203112"
@@ -11,7 +11,9 @@ all_serials:
   - "000614303212"
   - "000828303212"
 
-# hydra 配置，不建议修改
+checkerboard_size: [11, 8] # Inner corners: columns, rows.
+square_size: 0.03 # Meters.
+
 hydra:
   output_subdir: .hydra
   run:
